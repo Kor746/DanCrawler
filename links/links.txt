@@ -1,2 +1,1 @@
-http://www.cnn.com/
-https://twitter.com/realDonaldTrump/
+http://searchapp.cnn.com/search/query.jsp?page=1&npp=10&start=1&text=Donald%2BTrump&type=all&bucket=true&sort=date&collection=STORIES&csiID=csi3

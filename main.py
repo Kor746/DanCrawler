@@ -9,10 +9,12 @@ import queue
 import threading
 import time
 import sys
+import json
 #We can also use grequests to get send url req's async, but I will use threading for my app
 #https://github.com/kennethreitz/grequests
 #import grequests
 from urllib.request import urlopen
+import urllib
 from dthread import DThread
 from link import Link
 from robotparser import RobotFileParser
@@ -27,9 +29,7 @@ path = 'links/links.txt'
 #This class runs multiple jobs for grabbing the urls
 class DanCrawler(threading.Thread):
 
-	robots_flag = False
 	
-
 	def __init__(self, load_queue, work_queue):
 		threading.Thread.__init__(self)
 		self.load_queue = load_queue
@@ -41,8 +41,9 @@ class DanCrawler(threading.Thread):
 			# get links from queue
 			link = self.load_queue.get()
 			
-			data = self.loadUrl(link)
-
+		
+			data = self.loadLink(link)
+			
 			
 			self.work_queue.put(data)
 
@@ -51,63 +52,77 @@ class DanCrawler(threading.Thread):
 			time.sleep(5)
 
 
-	#def exception_handler(self, request, exception):
-	#	print("The request " + request + " failed because: " + exception)
 
-	def loadUrl(self, link):
-		if self.readRobots(link.getUrl()) == True:
+
+	def loadLink(self, link):
+		if self.readRobots(link.getName()) == True:
+			statusCode = 0
 			print("Extracting " + link.getUrl() + " from...." + link.getName())
-			return urlopen(link.getUrl()).read().decode('UTF-8')
-		
-			#Can use this as an alternative to threads. This actually may be faster!
-			#req = grequests.get(links.getUrl(), timeout = 0.001)
-			#Sends all requests at the same time
-			#grequests.map(req, exception_handler=self.exception_handler)
+			try:
+				statusCode = urlopen(link.getUrl()).getcode()
+			except urllib.HTTPError:
+				if statusCode != 200:
+					print("Error: " + err)
 
-		return print("Error: Robot.txt policy rejection!")
+			if statusCode == 200:
+				return urlopen(link.getUrl()).read().decode('UTF-8')
+			else:
+				print("Error: " + str(statusCode) + "Retrying..")
+				time.sleep(5)
+				return ""
+		return ""
 		
 	#Checks robots.txt to see if bots are allowed
 	def readRobots(self, url):
 		rp = RobotFileParser()
-		rp.set_url(url + "robots.txt")
+		link = url + "robots.txt"
+		print(link)
+		rp.set_url(link)
 		rp.read()
-		return rp.can_fetch("*", url)
+		return rp.can_fetch("*", link)
+
 
 def readFile(path):
 	links = []
 	with open(path, 'r') as f:
 		data = f.read().splitlines()
-		for i in data:
-			link = Link(cleanUrl(i), i)
-			links.append(link);
-		
+		for line in data:
+			if (line != "") and (cleanUrl(line)) != "":
+				link = Link(cleanUrl(line), line)
+				links.append(link);
+			else:
+				print("Please append http or https to link!!! " + line)
 	f.closed
 	return links
 
 def cleanUrl(url):
-	http = "http://"
-	https = "https://"
-	if http in url:
-		url = url.replace("http://","")
-		return url.split('/')[0]
-	elif https in url:
-		url = url.replace("https://","")
-		return url.split('/')[0]
+	if ('http' in url) or ('https' in url):
+		url = url.replace("/", ".")
+		if url.split('.')[4] != 'com':
+			return url.split('.')[0] + '//' + url.split('.')[4] + '.com/'
+		return url.split('.')[0] + '//' + url.split('.')[3] + '.com/'
+	return ""
+
+	
 
 #Start timer
 start_time = time.time()
+
 def main():
 	links = readFile(path)
+	num_threads = 1
 	#Putting my slaves to work
-	num_threads = len(links) * 2
+	
+	for link in links:
+		load_queue.put(link)
+
 	for i in range(num_threads):
 		thread = DanCrawler(load_queue, work_queue)
 		thread.setDaemon(True)
 		thread.start()
 		print("Load thread " + str(i + 1) + " starting...")
 
-	for link in links:
-		load_queue.put(link)
+
 
 	for i in range(num_threads):
 		dthread = DThread(work_queue)
@@ -116,8 +131,10 @@ def main():
 		print("Data thread " + str(i + 1) + " starting...")
 
 	#Join threads after processing
+
 	load_queue.join()
 	work_queue.join()
 
+__name__ = '__main__'
 main()
 print("Total Time = " + str(time.time() - start_time))

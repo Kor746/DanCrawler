@@ -11,4 +11,5 @@ class Link:
 		return self.name
 
 	def getUrl(self):
+		self.url = self.url.replace("www.", "")
 		return self.url
