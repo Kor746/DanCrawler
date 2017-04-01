@@ -1,3 +1,4 @@
 __pycache__/
-link.pyc/
-config.py/
+db/
+/link.pyc
+/config.py
