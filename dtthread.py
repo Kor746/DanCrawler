@@ -3,11 +3,8 @@ import threading
 import sqlite3
 from bs4 import BeautifulSoup
 
-class DThread(threading.Thread):
-	path_start = "www.cnn.com"
-	headlines = {}
-	tweets = []
-
+class DTThread(threading.Thread):
+	
 
 	def __init__(self, work_queue):
 		threading.Thread.__init__(self)
@@ -21,11 +18,12 @@ class DThread(threading.Thread):
 			#c.execute('''DROP table trumptower''')
 			#c.execute('''CREATE TABLE 
 			#	IF NOT EXISTS trumptower (TEXT data)''')
-			data = self.work_queue.get()
+			trump_data = self.work_queue.get()
+			
+			#print(data)
+			soup = BeautifulSoup(trump_data, 'html.parser')
 
-			soup = BeautifulSoup(data, 'html.parser')
-
-			column = "data"
+			#column = "data"
 			#title = soup.title.string
 			#print("Aggregating " + title)
 
