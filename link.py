@@ -1,6 +1,5 @@
-# Link class
+#Model of a Link obj
 class Link:
-	
 	name = ""
 	url = ""
 	def __init__(self, name, url):

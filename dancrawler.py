@@ -2,9 +2,9 @@
 # Author: Daniel Lee
 # Date: March 30, 2017
 # E-mail: danlee746@hotmail.ca
-# Version: Python34
+# Version: Python 3.4.1
 # Purpose: This web crawler is meant to retrieve top 25 articles 
-# and tweets about Donald Trump. Make Crawling Great Again!
+# and tweets about Donald Trump. Make Crawling Great Again! (MCGA)
 
 import queue
 import threading
@@ -29,13 +29,13 @@ from tweet import Tweet
 #https://github.com/kennethreitz/grequests
 #import grequests
 
-
-
-#'http://searchapp.cnn.com/search/query.jsp?page=1&npp=25&start=1&text=Donald%2BTrump&type=all&bucket=true&sort=date&collection=STORIES&csiID=csi4'
+#This is the query url for top 25 Donald Trump stories...but I guess stories aren't really articles?
+#http://searchapp.cnn.com/search/query.jsp?page=1&npp=25&start=1&text=Donald%2BTrump&type=all&bucket=true&sort=date&collection=STORIES&csiID=csi4
 cnn_url = 'http://cnn.com'
 twitter_user ='realDonaldTrump'
 num_tweets = 25
-#Queue variables
+
+#The Q's
 load_queue = queue.Queue()
 work_queue = queue.Queue()
 
@@ -70,27 +70,20 @@ def parseTwitterData():
 			
 def parseCNNData():
 	url_data = getCNNData()
-	
 	soup = BeautifulSoup(url_data, 'html.parser')
-
 	cnn_data = soup.findAll("script")
-	x = str(cnn_data[8]).split(', siblings:         ')[1]
-	x = x.split('                     , registryURL:')[0]
-	x = json.loads(x)
-	x = x['articleList']
-	for i in x:
-		print(i['uri'])
-	#print(x.encode('utf-8').decode('utf-8'))
-	#print(cnn_data[8].encode('utf-8'))
-	#for i in cnn_data:
-	#	print(i.encode('utf-8'))
-	#cnn_content = str(cnn_data.contents[0])
-	
-	# load string to json object (dict)
-	#cnn_json = json.loads(cnn_content)
-	#print(cnn_json)
-	#print(json.dumps(cnn_json, indent = 4))
+	#Cleaning and parsing the ResultSet strings
+	clean_cnn = str(cnn_data[8]).split(', siblings:         ')[1]
+	clean_cnn = clean_cnn.split('                     , registryURL:')[0]
+	clean_cnn = json.loads(clean_cnn)
+	clean_cnn = clean_cnn['articleList']
 
+	links = []
+	for link in clean_cnn:
+		full_link = cnn_url + link['uri']
+		link = Link(cleanUrl(full_link), full_link)
+		links.append(link)
+	return links
 
 def getCNNData():
 	try:
@@ -104,8 +97,7 @@ def getCNNData():
 		pass
 	return ""
 	
-
-#Cleans up url and returns the root hostname.com
+#Cleans up url and returns the root hostname.com... got sidetracked lol
 def cleanUrl(url):
 	if ('http' in url) or ('https' in url):
 		url = url.replace("/", ".")
@@ -115,15 +107,14 @@ def cleanUrl(url):
 	return print("Please append http or https to " + url)
 
 
-#Start timer
+#Start program timer
 start_time = time.time()
 def main():
-	parseCNNData()
-	link = Link(cleanUrl('http://blah.com'), 'http://blah.com')
-	links = [link]
+	links = parseCNNData()
+
 	#Number of slaves muahahahaha :)
 	#Too slow? You must construct additional threads!!
-	num_threads = 1
+	num_threads = 12
 	
 	#Loading the load_queue with links
 	for link in links:
@@ -136,15 +127,14 @@ def main():
 		#print("DanCrawler thread " + str(i + 1) + " starting...")
 		dcthread.start()
 
-	print("Grabbing Trump Tweets...")
-	parseTwitterData()
-	
 	for i in range(num_threads):
 		dpthread = DTThread(work_queue)
 		dpthread.setDaemon(True)
 		#print("Data process thread " + str(i + 1) + " starting...")
 		dpthread.start()
-	
+
+	print("Grabbing Trump Tweets...")
+	parseTwitterData()	
 
 	#Blocks until items are processed
 	load_queue.join()
@@ -152,7 +142,9 @@ def main():
 
 #Program entry 
 __name__ = '__main__'
+
 #Call main func to start program
 main()
+
 #Current time - start time =  elapsed time
-print("Total Time = " + str(time.time() - start_time))
+print("Elapsed Time = " + str(time.time() - start_time))
