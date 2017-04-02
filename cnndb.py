@@ -1,9 +1,9 @@
 #This file contains functions that perform CNN queries
-import sqlite3
+import psycopg2
 
 def insertToDB(article):
 
-	conn = sqlite3.connect('db/trump.db',timeout=10)
+	conn = psycopg2.connect("dbname='db/trump.db'")
 	c = conn.cursor()
 
 	#c.execute('''DROP TABLE IF EXISTS trump_articles''')
@@ -13,11 +13,10 @@ def insertToDB(article):
 	
 	conn.commit()
 	conn.close()
-	getArticles()
 
 def getArticles():
 
-	conn = sqlite3.connect('db/trump.db',timeout=5)
+	conn = psycopg2.connect("dbname='db/trump.db'")
 	c = conn.cursor()
 	articles = []
 	for row in c.execute("SELECT * FROM trump_articles ORDER BY ROWID ASC LIMIT 25"):

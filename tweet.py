@@ -1,5 +1,4 @@
 #A model for a tweet object
-
 class Tweet:
 	tweet_text = ""
 	tweet_date = ""

@@ -1,5 +1,4 @@
 #Model for an article object
-
 class Article:
 	title = ""
 	content = ""

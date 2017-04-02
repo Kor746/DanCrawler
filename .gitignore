@@ -1,4 +1,7 @@
 __pycache__/
 db/
-/link.pyc
+*.pyc
+.env
+venv
+staticfiles
 /config.py

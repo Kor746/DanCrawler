@@ -1,4 +1,4 @@
-#Model of a Link obj
+#Model for a Link obj
 class Link:
 	name = ""
 	url = ""

@@ -1,8 +1,8 @@
 #This file contains functions that perform Twitter queries
-import sqlite3
+import psycopg2
 
 def insertToDB(tweet):
-	conn = sqlite3.connect('db/trump.db',timeout=5)
+	conn = psycopg2.connect("dbname='db/trump.db'")
 	c = conn.cursor()
 
 	c.execute('''DROP TABLE IF EXISTS trump_tweets''')
@@ -14,7 +14,7 @@ def insertToDB(tweet):
 	conn.close()
 
 def getTweets():
-	conn = sqlite3.connect('db/trump.db',timeout=5)
+	conn = psycopg2.connect("dbname='db/trump.db'")
 	c = conn.cursor()
 	tweets = []
 	for row in c.execute("SELECT * FROM trump_tweets ORDER BY ROWID ASC LIMIT 25"):
