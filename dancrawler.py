@@ -2,7 +2,7 @@
 # Author: Daniel Lee
 # Date: March 30, 2017
 # E-mail: danlee746@hotmail.ca
-# Version: Python27
+# Version: Python34
 # Purpose: This web crawler is meant to retrieve top 25 articles 
 # and tweets about Donald Trump. Make Crawling Great Again!
 
@@ -12,19 +12,18 @@ import time
 import sys
 import json
 import sqlite3
+import twitterdb
 #Stores Twitter keys
 import config
 import tweepy
-import numpy as np
 from tweepy import OAuthHandler
-#import newspaper3k
 import urllib
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from dcthread import DCThread
 from dtthread import DTThread
 from link import Link
-
+from tweet import Tweet
 ########### Suggestion #############
 #We can also use grequests to get send url req's async, but I will use threading for my app
 #https://github.com/kennethreitz/grequests
@@ -45,53 +44,46 @@ def getTwitterData():
 	auth = OAuthHandler(config.consumer_key, config.consumer_secret)
 	auth.set_access_token(config.access_token, config.access_token_secret)
 	api = tweepy.API(auth)
+
 	#List to store tweets
 	tweet_data = []
 	try:
 		for tweet in api.user_timeline(screen_name = twitter_user, count = num_tweets):
-			tweet_data.append(json.dumps(tweet._json))
-			#tweet_data.append(tweet.text.encode('utf-8'))
-			#print(tweet.text.encode('utf-8'))
+			tweet_data.append(tweet._json)
+		return tweet_data
 	except tweepy.TweepError:
-		print("Error getting tweet")
-		time.sleep(10)
+		print("Error getting twitter data!")
 		pass
-
 	return tweet_data
-
+	
 def parseTwitterData():
-	tweet_data = []
-	tweet_date = []
-	for tweets_obj in getTwitterData():
-		tweet_dict = json.loads(tweets_obj)
-		for topic,tweet in tweet_dict.items():
-			if topic == 'text':
-				tweet_data.append(tweet.encode('utf-8'))
-			if topic == 'created_at':
-				tweet_date.append(tweet.encode('utf-8'))
-	
-	tweet_array = np.column_stack((tweet_data, tweet_date))
-	print(tweet_array)	
-	
-	#tweets = []
-	#[tweets.append(i) for i in tweet_data]
-	#print(tweets)
-	#for i in tweets:
-	#	print(i.encode('utf-8'))
-	
-		
-	
-
+	#Iterates json dict, creates a tweet object and passes to insert to db func
+	the_data = getTwitterData()
+	if len(the_data) != 0:
+		for tweet_data in the_data:	
+			#Constructing tweet obj with text and date attributes	
+			tweet = Tweet(str(tweet_data['text'].encode('utf-8')).strip(),
+				str(tweet_data['created_at'].encode('utf-8')).strip())
+			twitterdb.insertToDB(tweet)
+	else: 
+		print("Error getting twitter data!")
+			
 def parseCNNData():
-	cnn_articles = newspaper3k.build('http://cnn.com')
-
-	for article in cnn_articles.articles:
-		print(article.url['text'])
-	#url_data = readCNNUrl()
+	url_data = getCNNData()
 	
-	#soup = BeautifulSoup(url_data, 'html.parser')
+	soup = BeautifulSoup(url_data, 'html.parser')
 
-	#cnn_data = soup.find("textarea")
+	cnn_data = soup.findAll("script")
+	x = str(cnn_data[8]).split(', siblings:         ')[1]
+	x = x.split('                     , registryURL:')[0]
+	x = json.loads(x)
+	x = x['articleList']
+	for i in x:
+		print(i['uri'])
+	#print(x.encode('utf-8').decode('utf-8'))
+	#print(cnn_data[8].encode('utf-8'))
+	#for i in cnn_data:
+	#	print(i.encode('utf-8'))
 	#cnn_content = str(cnn_data.contents[0])
 	
 	# load string to json object (dict)
@@ -100,17 +92,15 @@ def parseCNNData():
 	#print(json.dumps(cnn_json, indent = 4))
 
 
-def readCNNUrl():
+def getCNNData():
 	try:
-		status_code = urlopen(cnn_url).getcode()
-		if status_code == 200:
-			cnn_data = urlopen(cnn_url).read().decode('UTF-8')
-			return cnn_data
+		if urlopen(cnn_url).getcode() == 200:
+			return urlopen(cnn_url).read()
 	except urllib.error.URLError:
-		print("Invalid URL: " + link.getUrl())
+		print("Invalid URL: " + cnn_url)
 		pass
 	except urllib.error.HTTPError:
-		print("HTTP Error!")
+		print("HTTP Error! " + cnn_url)
 		pass
 	return ""
 	
@@ -128,13 +118,13 @@ def cleanUrl(url):
 #Start timer
 start_time = time.time()
 def main():
-	parseTwitterData()
+	parseCNNData()
 	link = Link(cleanUrl('http://blah.com'), 'http://blah.com')
 	links = [link]
-	#Number of slaves muahahahaha
-	num_threads = 4
+	#Number of slaves muahahahaha :)
 	#Too slow? You must construct additional threads!!
-
+	num_threads = 1
+	
 	#Loading the load_queue with links
 	for link in links:
 		load_queue.put(link)
@@ -146,12 +136,16 @@ def main():
 		#print("DanCrawler thread " + str(i + 1) + " starting...")
 		dcthread.start()
 
+	print("Grabbing Trump Tweets...")
+	parseTwitterData()
+	
 	for i in range(num_threads):
 		dpthread = DTThread(work_queue)
 		dpthread.setDaemon(True)
 		#print("Data process thread " + str(i + 1) + " starting...")
 		dpthread.start()
 	
+
 	#Blocks until items are processed
 	load_queue.join()
 	work_queue.join()

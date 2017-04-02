@@ -16,7 +16,6 @@ class DCThread(threading.Thread):
 
 	# invoked implicitly by thread
 	def run(self):
-		
 		while True:
 			#Get link from load queue
 			link = self.load_queue.get()
@@ -30,20 +29,17 @@ class DCThread(threading.Thread):
 			#Signal load_queue task done 
 			self.load_queue.task_done()
 
+	#Load the content of the urls
 	def loadLink(self, link):
 		try:
-			if self.readRobots(link.getName()) == True:
-				status_code = urlopen(link.getUrl()).getcode()
-				if status_code == 200:
-					data = urlopen(link.getUrl()).read().decode('UTF-8')
-					print("Crawling.. " + link.getUrl() + " From " + link.getName())
-					return data
-
+			if (self.readRobots(link.getName()) == True) and (urlopen(link.getUrl()).getcode() == 200):
+				print("Crawling..." + link.getUrl() + " From " + link.getName())
+				return urlopen(link.getUrl()).read()
 		except urllib.error.URLError:
 			print("Invalid URL: " + link.getUrl())
 			pass
 		except urllib.error.HTTPError:
-			print("HTTP Error!")
+			print("HTTP Error! " + link.getUrl())
 			pass
 		return ""
 		
