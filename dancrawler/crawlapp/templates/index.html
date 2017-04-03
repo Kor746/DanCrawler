@@ -1,0 +1,26 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title> Dan's Web Crawler App </title>
+		<link rel="stylesheet" href="{% static 'css/styles.css' %}" type="text/css">
+	</head>
+	<body>
+		<h1 id="maintitle"> Welcome to DanCrawler </h1><br/>
+		<div id="main_container">
+			<h2>Here are some Trump tweets 8D</h2>
+			{{ data }}
+
+		</div>
+		
+		<script type="text/javascript" src="{% static 'js/functions.js' %}">
+		</script>
+	</body>
+
+
+
+</html>

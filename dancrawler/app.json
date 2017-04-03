@@ -1,0 +1,7 @@
+{
+	"name": "Dan Crawler",
+	"description": "A web crawler for Trump",
+	"image": "heroku/python",
+	"repository": ["python", "django" ],
+	"addons": ["heroku-postgresql"]
+}
