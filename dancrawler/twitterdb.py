@@ -4,7 +4,7 @@ import sqlite3
 def insertToDB(tweets):
 	conn = sqlite3.connect('db.sqlite3', timeout=5)
 	c = conn.cursor()
-	#c.execute('''DROP TABLE IF EXISTS crawlapp_trump_tweets''')
+	c.execute('''DROP TABLE IF EXISTS crawlapp_trump_tweets''')
 	c.execute('''CREATE TABLE IF NOT EXISTS crawlapp_trump_tweets 
 		(id INTEGER PRIMARY KEY,
 		tweet_text TEXT NOT NULL, 

@@ -1,3 +1,15 @@
 h1 {
 	color: red;
+	font-size: 2em;
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+h2 {
+	color: blue;
+}
+
+button{
+	font-weight: bold;
+	font-size: 1.2em;
+	padding: 5px;
 }
