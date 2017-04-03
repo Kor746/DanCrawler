@@ -1,1 +1,0 @@
-# DanCrawler is a Webcrawler that collects Trump tweets and articles. Cheers :)
