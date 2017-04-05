@@ -13,26 +13,23 @@
 		<h1 id="maintitle"> Welcome to DanCrawler - An Ugly Page (Not bootstrap) </h1><br/>
 		<div id="main_container">
 			<div class="tweet_div">
-				<h2>Here are the newest Trump tweets</h2>
-				 <ul>
+				<h2>Here are the 25 newest Trump tweets</h2>
 				{% for tweet in tweets %}
 					<hr/>
-					<li style="font-weight:bold"> {{tweet.tweet_text}} </li><br/>
+					<p style="font-weight:bold">{{forloop.counter}}. {{tweet.tweet_text}}</p><br/>
 					{{tweet.tweet_date}}
 				{% endfor %}
-				</ul>
 			</div><br/>
 			<div id="article_div"> 
-				<h1>Here are the top Trump Article</h1>
+				<h2>Here are the top 25 Trump Articles</h2>
 				{% for article in articles %}
 					<hr/>
 					<button id="{{forloop.counter}}" onclick="show(this.id);" style="color:green;font-size:12"> {{article.article_title}} </button><br/><br/>
-					<div style="display:none;font-weight:bold;font-size:1.1em"id="trump{{forloop.counter}}"> {{ article.article_content }}</div> <br/><br/>
+					<div style="display:none;font-weight:bold;font-size:1.1em"id="trump{{forloop.counter}}"> 
+						{% autoescape off %} {{ article.article_content }} {% endautoescape %}</div> <br/><br/>
 				{% endfor %}	
-			
 			</div>
 		</div>
-		
 		<script type="text/javascript" src="{% static 'js/functions.js' %}">
 		</script>
 	</body>

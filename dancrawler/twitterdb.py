@@ -11,7 +11,8 @@ def insertToDB(tweets):
 		tweet_date TEXT NOT NULL)''')
 
 	for tweet in tweets:
-		c.execute('''INSERT INTO crawlapp_trump_tweets(tweet_text, tweet_date) VALUES(?,?)''', (tweet.getText(),tweet.getDate()))
+		c.execute('''INSERT INTO crawlapp_trump_tweets(tweet_text, tweet_date) VALUES(?,?)''', 
+			(tweet.getText(),tweet.getDate()))
 	
 	conn.commit()
 	conn.close()

@@ -1,7 +1,12 @@
-# DanCrawler is an awesome Webcrawler that collects Trump tweets and articles. I created this with Python, Django web framework and sqlite3. I learned Django and sqlite3 while doing it. The only way to learn! I also used multithreading for crawling CNN. 
+# DanCrawler is an awesome webcrawler that collects the newest Trump tweets and articles. I created this using Python 3.4.1, Django web framework and sqlite3 db. I learned Django while doing this project. The only way to learn! 
+
+!!!MAKE SURE YOU HAVE DJANGO INSTALLED!!!
+!!!MAKE SURE YOU PIP INSTALL ALL EXTERNAL MODULES!!!
+
+**RobotParser can be found in this link https://github.com/python-git/python/blob/master/Lib/robotparser.py
 
 =================================================================================
-!!!MAKE SURE YOU HAVE DJANGO INSTALLED!!!
+####OUTDATED####
 
 1. Run 'pip install django' in command shell
 
@@ -11,6 +16,14 @@
 
 =================================================================================
 
-Afterthoughts:
+####UPDATES####
 
-Hopefully, I can find the time to make the UI prettier, clean up the tweets and articles from tags and escape characters, and deploy it on a hosted server. I tried using heroku's free service, but they only support PostGreSQL, which I may eventually port it to. Make Crawling Great Again!
+I have implemented 'python dancrawler.py' as a subprocess on view.py.
+
+1. Run 'python manage.py runserver'
+
+2. Just refresh the page if you want to update the news/tweets. It should take approx 3-4 seconds.
+
+####Afterthoughts####:
+
+Hopefully, I can find the time to make the UI prettier, deploy it on a hosted server. I tried using heroku's free service, but they only support PostGreSQL, which I may eventually port it to. Make Crawling Great Again!

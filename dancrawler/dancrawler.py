@@ -57,14 +57,14 @@ def getTwitterData():
 	return tweet_data
 	
 def parseTwitterData():
-	#Iterates json dict, creates a tweet object and passes to insert to db func
+	#Iterates json dict, creates a tweet object and passes to insert to db function
 	the_data = getTwitterData()
 	if len(the_data) != 0:
 		tweets = []
-		for tweet_data in the_data:	
-			#Constructing tweet obj with text and date attributes	
-			tweet = Tweet(str(tweet_data['text'].encode('utf-8')).strip(),
-				str(tweet_data['created_at'].encode('utf-8')).strip())
+		for tweet_data in the_data:
+			#Constructing tweet obj with text and date attributes
+			tweet = Tweet(str(tweet_data['text']).strip(),
+				str(tweet_data['created_at']).strip())
 			tweets.append(tweet)
 		twitterdb.insertToDB(tweets)
 	else: 
