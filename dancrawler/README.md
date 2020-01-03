@@ -1,4 +1,4 @@
-# DanCrawler is an awesome webcrawler that collects the newest Trump tweets and articles. I created this using Python 3.4.1, Django web framework and sqlite3 db. I learned Django while doing this project. The only way to learn! 
+# DanCrawler is an awesome webcrawler that collects the newest tweets and articles. I created this using Python 3.4.1, Django web framework and sqlite3 db. I learned Django while doing this project. The only way to learn! 
 
 !!!MAKE SURE YOU HAVE DJANGO INSTALLED!!!
 !!!MAKE SURE YOU PIP INSTALL ALL EXTERNAL MODULES!!!
